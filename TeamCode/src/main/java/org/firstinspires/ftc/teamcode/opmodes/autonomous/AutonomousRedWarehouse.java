@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.autonomous;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.robot.Robot;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -34,6 +35,7 @@ public class AutonomousRedWarehouse extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+        turtlerobot.init(hardwareMap);
         telemetry.addData("Status", "Resetting Encoders");    //
         telemetry.update();
 
@@ -200,7 +202,20 @@ public class AutonomousRedWarehouse extends LinearOpMode {
         turtlerobot.leftbackmotor.setPower(0);
         sleep(1000);
     }
-
+    public void moveCarousel(TurtleRobot turtlerobot, boolean direction) {
+        if (direction == true) {
+            turtlerobot.Carouselmotor1.setPower(-0.25);
+        } else if (direction == false) {
+            turtlerobot.Carouselmotor1.setPower(0.25);
+        }
+    }
+    public void collectdrop(TurtleRobot turtlerobot, boolean cargo) {
+        if (cargo == true) {
+            turtlerobot.intakeservo.setPower(-0.25);
+        } else if (cargo == false) {
+            turtlerobot.intakeservo.setPower(0.25);
+        }
+    }
     /**
      * Function that becomes true when gyro is calibrated and
      * reports calibration status to Driver Station in the meantime.

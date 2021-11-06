@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.robot;
 
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -40,6 +41,7 @@ public class TurtleRobot
     public DcMotor leftbackmotor = null;
     public DcMotor armmotor = null;
     public DcMotor Carouselmotor1 = null;
+    public CRServo intakeservo = null;
     public BNO055IMU imu;
 
     public static final double     COUNTS_PER_MOTOR_REV    = 28 ;    // eg: TETRIX Motor Encoder
@@ -64,7 +66,7 @@ public class TurtleRobot
     public void init(HardwareMap ahwMap) {
         // Save reference to Hardware map
         hwMap = ahwMap;
-
+        intakeservo = hwMap.get(CRServo.class, "ArmServo");
         // Define and Initialize Motors
         leftfrontmotor  = hwMap.get(DcMotor.class, "left_front_motor");
         leftbackmotor  = hwMap.get(DcMotor.class, "left_back_motor");
@@ -82,6 +84,7 @@ public class TurtleRobot
         rightbackmotor.setPower(0);
         armmotor.setPower(0);
         Carouselmotor1.setPower(0);
+        intakeservo.setPower(0);
 
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
