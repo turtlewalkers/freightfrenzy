@@ -21,6 +21,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TfodCurrentGame;
 
+import java.util.List;
+
 @Autonomous
 public class AutonomousRedWarehouse extends LinearOpMode {
     TurtleRobot        turtlerobot   = new TurtleRobot();   // Use a Pushbot's hardware
@@ -35,6 +37,8 @@ public class AutonomousRedWarehouse extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+        int index;
+        int pos;
         turtlerobot.init(hardwareMap);
         telemetry.addData("Status", "Resetting Encoders");    //
         telemetry.update();
@@ -215,6 +219,87 @@ public class AutonomousRedWarehouse extends LinearOpMode {
         } else if (cargo == false) {
             turtlerobot.intakeservo.setPower(0.25);
         }
+    }
+    public int recognizeDuckPosition() {
+        int pos = 0;
+        List<Recognition> recognitions;
+        int index;
+        recognitions = turtlerobot.tfodFreightFrenzy.getRecognitions();
+        // If list is empty, inform the user. Otherwise, go
+        // through list and display info for each recognition.
+        if (recognitions.size() == 0) {
+            telemetry.addData("TFOD", "No items detected.");
+        } else {
+            index = 0;
+            // Iterate through list and call a function to
+            // display info for each recognized object.
+            for (Recognition recognition_item : recognitions) {
+                turtlerobot.recognition = recognition_item;
+                // Display info.
+                displayInfo(index);
+                if (turtlerobot.recognition.getLabel().equals("Duck")) {
+                    if (turtlerobot.recognition.getLeft() < 150) {
+                        telemetry.addData("Duck", "Middle");
+                        pos = 1;
+                    } else {
+                        telemetry.addData("Duck", "Right");
+                        pos= 0;
+                    }
+                } else {
+                    telemetry.addData("Duck", "Left");
+                    pos=2;
+                }
+                // Increment index.
+                index = index + 1;
+            }
+        }
+        telemetry.update();
+        return pos;
+    }
+
+    public void initCam() {
+        turtlerobot.vuforiaFreightFrenzy = new VuforiaCurrentGame();
+        turtlerobot.tfodFreightFrenzy = new TfodCurrentGame();
+
+        // Sample TFOD Op Mode
+        // Initialize Vuforia.
+        turtlerobot.vuforiaFreightFrenzy.initialize(
+                "", // vuforiaLicenseKey
+                hardwareMap.get(WebcamName.class, "Webcam 1"), // cameraName
+                "", // webcamCalibrationFilename
+                false, // useExtendedTracking
+                false, // enableCameraMonitoring
+                VuforiaLocalizer.Parameters.CameraMonitorFeedback.AXES, // cameraMonitorFeedback
+                0, // dx
+                0, // dy
+                0, // dz
+                90, // xAngle
+                0, // yAngle
+                90, // zAngle
+                true); // useCompetitionFieldTargetLocations
+        // Set min confidence threshold to 0.7
+        turtlerobot.tfodFreightFrenzy.initialize(turtlerobot.vuforiaFreightFrenzy, (float) 0.7, true, true);
+        // Initialize TFOD before waitForStart.
+        // Init TFOD here so the object detection labels are visible
+        // in the Camera Stream preview window on the Driver Station.
+        turtlerobot.tfodFreightFrenzy.activate();
+        // Enable following block to zoom in on target.
+        turtlerobot.tfodFreightFrenzy.setZoom(1, 16 / 9);
+        telemetry.addData(">", "Press Play to start");
+        telemetry.update();
+    }
+    public void displayInfo(int i) {
+        // Display label info.
+        // Display the label and index number for the recognition.
+        telemetry.addData("label " + i, turtlerobot.recognition.getLabel());
+        // Display upper corner info.
+        // Display the location of the top left corner
+        // of the detection boundary for the recognition
+        telemetry.addData("Left, Top " + i, turtlerobot.recognition.getLeft() + ", " + turtlerobot.recognition.getTop());
+        // Display lower corner info.
+        // Display the location of the bottom right corner
+        // of the detection boundary for the recognition
+        telemetry.addData("Right, Bottom " + i, turtlerobot.recognition.getRight() + ", " + turtlerobot.recognition.getBottom());
     }
     /**
      * Function that becomes true when gyro is calibrated and
