@@ -39,7 +39,7 @@ public class TurtleRobot
     public DcMotor leftfrontmotor = null;
     public DcMotor leftbackmotor = null;
     public DcMotor armmotor = null;
-    public DcMotor carouselmotor = null;
+    public DcMotor Carouselmotor1 = null;
     public BNO055IMU imu;
 
     public static final double     COUNTS_PER_MOTOR_REV    = 28 ;    // eg: TETRIX Motor Encoder
@@ -81,7 +81,7 @@ public class TurtleRobot
         rightfrontmotor.setPower(0);
         rightbackmotor.setPower(0);
         armmotor.setPower(0);
-        carouselmotor.setPower(0);
+        Carouselmotor1.setPower(0);
 
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
