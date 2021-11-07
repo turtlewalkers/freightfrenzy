@@ -23,7 +23,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TfodCurrentGame;
 
 import java.util.List;
-
+//help
 @Autonomous
 public class AutonomousRedWarehouse extends LinearOpMode {
     TurtleRobot        turtlerobot   = new TurtleRobot();   // Use a Pushbot's hardware
@@ -232,6 +232,7 @@ public class AutonomousRedWarehouse extends LinearOpMode {
             turtlerobot.intakeservo.setPower(0.25);
         }
     }
+
     public int recognizeDuckPosition() {
         int pos = 0;
         List<Recognition> recognitions;
