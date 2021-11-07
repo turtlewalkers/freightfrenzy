@@ -325,7 +325,7 @@ public class AutonomousRedWarehouse extends LinearOpMode {
         // Display lower corner info.
         // Display the location of the bottom right corner
         // of the detection boundary for the recognition
-        
+
         telemetry.addData("Right, Bottom " + i, turtlerobot.recognition.getRight() + ", " + turtlerobot.recognition.getBottom());
     }
     /**
