@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.autonomous;
 
-
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.robot.Robot;
@@ -22,11 +21,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TfodCurrentGame;
 
-import java.util.List;
-//help
 @Autonomous
-public class AutonomousRedWarehouse extends LinearOpMode {
-    TurtleRobot        turtlerobot   = new TurtleRobot();   // using OUR hardware
+public class AutonomousRedStorageunit extends LinearOpMode {
+    TurtleRobot        turtlerobot   = new TurtleRobot();   // Use a Pushbot's hardware
     private ElapsedTime     runtime = new ElapsedTime();
     static final double COUNTS_PER_MOTOR_REV = 28;    // eg: TETRIX Motor Encoder
     static final double DRIVE_GEAR_REDUCTION = 19.2;     // This is < 1.0 if geared UP
@@ -38,12 +35,10 @@ public class AutonomousRedWarehouse extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        int index;
-        int pos;
-        initCam();
         turtlerobot.init(hardwareMap);
         telemetry.addData("Status", "Resetting Encoders");    //
         telemetry.update();
+
         turtlerobot.leftfrontmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         turtlerobot.leftbackmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         turtlerobot.rightbackmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -59,41 +54,12 @@ public class AutonomousRedWarehouse extends LinearOpMode {
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
-        int cam = recognizeDuckPosition();
-        if (cam == 0) {
-            turtlerobot.rightbackmotor.setPower(1);
-            sleep(5000);
-            turtlerobot.rightbackmotor.setPower(0);
-        } else if (cam == 1) {
-            turtlerobot.leftfrontmotor.setPower(0.5);
-            sleep(1000);
-            turtlerobot.leftfrontmotor.setPower(0);
-        } else {
-            turtlerobot.leftbackmotor.setPower(0.1);
-            sleep(2500);
-            turtlerobot.leftbackmotor.setPower(0);
-        }
-        // Field is 144 by 144 inches
-        // Each square floor tile is 24 by 24 inches
-        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 10, 10, 10, 10, 3);
-        GyroTurn(turtlerobot, 90); //left
-        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 65, 65, 65, 65, 6);  // S1: Forward 47 Inches with 5 Sec timeout
-        moveCarousel(turtlerobot, true);
-        sleep(2000);
-        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, -65, -65, -65, -65, 6);
-        GyroTurn(turtlerobot, -90); //right
-        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 24, 24, 24, 24, 4);
-        collectdrop(turtlerobot, false);
-        sleep(1000);
-        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, -24, -24, -24, -24, 4);
-        GyroTurn(turtlerobot, -90); //right
-        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 72, 72, 72, 72, 7);
 
         // Field is 144 by 144 inches
         // Each square floor tile is 24 by 24 inches
         EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 10, 10, 10, 10, 3);
         GyroTurn(turtlerobot, 90); //left
-        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 65, 65, 65, 65, 6);  // S1: Forward 47 Inches with 5 Sec timeout
+        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 20, 20, 20, 20, 5);  // S1: Forward 47 Inches with 5 Sec timeout
         moveCarousel(turtlerobot, true);
         sleep(2000);
         EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, -65, -65, -65, -65, 6);
@@ -102,9 +68,16 @@ public class AutonomousRedWarehouse extends LinearOpMode {
         collectdrop(turtlerobot, false);
         sleep(1000);
         EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, -24, -24, -24, -24, 4);
+        GyroTurn(turtlerobot, 90); //left
+        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 10, 10, 10, 10, 4);
         GyroTurn(turtlerobot, -90); //right
-        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 72, 72, 72, 72, 7);
+        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 20, 20, 20, 20, 3);
+        GyroTurn(turtlerobot, 90); //left
+        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 24, 24, 24, 24, 7);
 
+
+
+        //EncoderDrive(turtlerobot,turtlerobot.TURN_SPEED, -10, -10, -3, -3, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
     }
     public void EncoderDrive(TurtleRobot turtlerobot, double speed,
                              double leftfrontInches, double leftbackInches,
@@ -258,89 +231,6 @@ public class AutonomousRedWarehouse extends LinearOpMode {
         } else if (cargo == false) {
             turtlerobot.intakeservo.setPower(0.25);
         }
-    }
-
-    public int recognizeDuckPosition() {
-        int pos = 0;
-        List<Recognition> recognitions;
-        int index;
-        recognitions = turtlerobot.tfodFreightFrenzy.getRecognitions();
-        // If list is empty, inform the user. Otherwise, go
-        // through list and display info for each recognition.
-        if (recognitions.size() == 0) {
-            telemetry.addData("TFOD", "No items detected.");
-        } else {
-            index = 0;
-            // Iterate through list and call a function to
-            // display info for each recognized object.
-            for (Recognition recognition_item : recognitions) {
-                turtlerobot.recognition = recognition_item;
-                // Display info.
-                displayInfo(index);
-                if (turtlerobot.recognition.getLabel().equals("Duck")) {
-                    if (turtlerobot.recognition.getLeft() < 150) {
-                        telemetry.addData("Duck", "Middle");
-                        pos = 1; // this means that the arm will go to the middle level
-                    } else {
-                        telemetry.addData("Duck", "Right");
-                        pos= 0; // this means that the arm will go to the top level
-                    }
-                } else {
-                    telemetry.addData("Duck", "Left");
-                    pos=2; // this means that the arm will go to the bottom level
-                }
-                // Increment index.
-                index = index + 1;
-            }
-        }
-        telemetry.update();
-        return pos;
-    }
-
-    public void initCam() {
-        turtlerobot.vuforiaFreightFrenzy = new VuforiaCurrentGame();
-        turtlerobot.tfodFreightFrenzy = new TfodCurrentGame();
-
-        // Sample TFOD Op Mode
-        // Initialize Vuforia.
-        turtlerobot.vuforiaFreightFrenzy.initialize(
-                "", // vuforiaLicenseKey
-                hardwareMap.get(WebcamName.class, "Webcam 1"), // cameraName
-                "", // webcamCalibrationFilename
-                false, // useExtendedTracking
-                false, // enableCameraMonitoring
-                VuforiaLocalizer.Parameters.CameraMonitorFeedback.AXES, // cameraMonitorFeedback
-                0, // dx
-                0, // dy
-                0, // dz
-                90, // xAngle
-                0, // yAngle
-                90, // zAngle
-                true); // useCompetitionFieldTargetLocations
-        // Set min confidence threshold to 0.7
-        turtlerobot.tfodFreightFrenzy.initialize(turtlerobot.vuforiaFreightFrenzy, (float) 0.7, true, true);
-        // Initialize TFOD before waitForStart.
-        // Init TFOD here so the object detection labels are visible
-        // in the Camera Stream preview window on the Driver Station.
-        turtlerobot.tfodFreightFrenzy.activate();
-        // Enable following block to zoom in on target.
-        turtlerobot.tfodFreightFrenzy.setZoom(1, 16 / 9);
-        telemetry.addData(">", "Press Play to start");
-        telemetry.update();
-    }
-    public void displayInfo(int i) {
-        // Display label info.
-        // Display the label and index number for the recognition.
-        telemetry.addData("label " + i, turtlerobot.recognition.getLabel());
-        // Display upper corner info.
-        // Display the location of the top left corner
-        // of the detection boundary for the recognition
-        telemetry.addData("Left, Top " + i, turtlerobot.recognition.getLeft() + ", " + turtlerobot.recognition.getTop());
-        // Display lower corner info.
-        // Display the location of the bottom right corner
-        // of the detection boundary for the recognition
-        
-        telemetry.addData("Right, Bottom " + i, turtlerobot.recognition.getRight() + ", " + turtlerobot.recognition.getBottom());
     }
     /**
      * Function that becomes true when gyro is calibrated and
