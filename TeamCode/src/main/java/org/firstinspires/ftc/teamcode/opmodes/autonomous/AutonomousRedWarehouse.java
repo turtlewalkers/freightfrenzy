@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.autonomous;
 
 
-import com.qualcomm.robotcore.hardware.DcMotor; 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.robot.Robot;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -26,7 +26,7 @@ import java.util.List;
 //help
 @Autonomous
 public class AutonomousRedWarehouse extends LinearOpMode {
-    TurtleRobot        turtlerobot   = new TurtleRobot();   // Use a Pushbot's hardware
+    TurtleRobot        turtlerobot   = new TurtleRobot();   // using OUR hardware
     private ElapsedTime     runtime = new ElapsedTime();
     static final double COUNTS_PER_MOTOR_REV = 28;    // eg: TETRIX Motor Encoder
     static final double DRIVE_GEAR_REDUCTION = 19.2;     // This is < 1.0 if geared UP
@@ -40,10 +40,10 @@ public class AutonomousRedWarehouse extends LinearOpMode {
     public void runOpMode() {
         int index;
         int pos;
+        initCam();
         turtlerobot.init(hardwareMap);
         telemetry.addData("Status", "Resetting Encoders");    //
         telemetry.update();
-
         turtlerobot.leftfrontmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         turtlerobot.leftbackmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         turtlerobot.rightbackmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -59,6 +59,35 @@ public class AutonomousRedWarehouse extends LinearOpMode {
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
+        int cam = recognizeDuckPosition();
+        if (cam == 0) {
+            turtlerobot.rightbackmotor.setPower(1);
+            sleep(5000);
+            turtlerobot.rightbackmotor.setPower(0);
+        } else if (cam == 1) {
+            turtlerobot.leftfrontmotor.setPower(0.5);
+            sleep(1000);
+            turtlerobot.leftfrontmotor.setPower(0);
+        } else {
+            turtlerobot.leftbackmotor.setPower(0.1);
+            sleep(2500);
+            turtlerobot.leftbackmotor.setPower(0);
+        }
+        // Field is 144 by 144 inches
+        // Each square floor tile is 24 by 24 inches
+        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 10, 10, 10, 10, 3);
+        GyroTurn(turtlerobot, 90); //left
+        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 65, 65, 65, 65, 6);  // S1: Forward 47 Inches with 5 Sec timeout
+        moveCarousel(turtlerobot, true);
+        sleep(2000);
+        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, -65, -65, -65, -65, 6);
+        GyroTurn(turtlerobot, -90); //right
+        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 24, 24, 24, 24, 4);
+        collectdrop(turtlerobot, false);
+        sleep(1000);
+        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, -24, -24, -24, -24, 4);
+        GyroTurn(turtlerobot, -90); //right
+        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 72, 72, 72, 72, 7);
 
         // Field is 144 by 144 inches
         // Each square floor tile is 24 by 24 inches
@@ -76,8 +105,6 @@ public class AutonomousRedWarehouse extends LinearOpMode {
         GyroTurn(turtlerobot, -90); //right
         EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 72, 72, 72, 72, 7);
 
-
-        //EncoderDrive(turtlerobot,turtlerobot.TURN_SPEED, -10, -10, -3, -3, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
     }
     public void EncoderDrive(TurtleRobot turtlerobot, double speed,
                              double leftfrontInches, double leftbackInches,
@@ -312,6 +339,7 @@ public class AutonomousRedWarehouse extends LinearOpMode {
         // Display lower corner info.
         // Display the location of the bottom right corner
         // of the detection boundary for the recognition
+
         telemetry.addData("Right, Bottom " + i, turtlerobot.recognition.getRight() + ", " + turtlerobot.recognition.getBottom());
     }
     /**
