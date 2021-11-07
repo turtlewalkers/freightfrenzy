@@ -253,14 +253,14 @@ public class AutonomousRedWarehouse extends LinearOpMode {
                 if (turtlerobot.recognition.getLabel().equals("Duck")) {
                     if (turtlerobot.recognition.getLeft() < 150) {
                         telemetry.addData("Duck", "Middle");
-                        pos = 1;
+                        pos = 1; // this means that the arm will go to the middle level
                     } else {
                         telemetry.addData("Duck", "Right");
-                        pos= 0;
+                        pos= 0; // this means that the arm will go to the top level
                     }
                 } else {
                     telemetry.addData("Duck", "Left");
-                    pos=2;
+                    pos=2; // this means that the arm will go to the bottom level
                 }
                 // Increment index.
                 index = index + 1;
