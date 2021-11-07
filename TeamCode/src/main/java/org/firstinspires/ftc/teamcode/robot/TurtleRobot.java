@@ -81,10 +81,10 @@ public class TurtleRobot {
         hwMap = ahwMap;
         intakeservo = hwMap.get(CRServo.class, "ArmServo");
         // Define and Initialize Motors
-        leftfrontmotor = hwMap.get(DcMotor.class, "left_front_motor");
-        leftbackmotor = hwMap.get(DcMotor.class, "left_back_motor");
-        rightfrontmotor = hwMap.get(DcMotor.class, "right_front_motor");
-        rightbackmotor = hwMap.get(DcMotor.class, "right_back_motor");
+        leftfrontmotor = hwMap.get(DcMotor.class, "leftfrontmotor");
+        leftbackmotor = hwMap.get(DcMotor.class, "leftbackmotor");
+        rightfrontmotor = hwMap.get(DcMotor.class, "rightfrontmotor");
+        rightbackmotor = hwMap.get(DcMotor.class, "rightbackmotor");
         // armmotor = hwMap.get(DcMotor.class, "arm_motor")
         // carouselmotor = hwMap.get(DcMotor.class, "carousel_motor")
         leftfrontmotor.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
