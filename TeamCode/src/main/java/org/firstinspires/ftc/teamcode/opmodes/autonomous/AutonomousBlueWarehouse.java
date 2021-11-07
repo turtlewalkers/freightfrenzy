@@ -58,17 +58,17 @@ public class AutonomousRedWarehouse extends LinearOpMode {
         // Field is 144 by 144 inches
         // Each square floor tile is 24 by 24 inches
         EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 10, 10, 10, 10, 3);
-        GyroTurn(turtlerobot, 90); //left
+        GyroTurn(turtlerobot, -90); //right
         EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 65, 65, 65, 65, 6);  // S1: Forward 47 Inches with 5 Sec timeout
-        moveCarousel(turtlerobot, true);
+        moveCarousel(turtlerobot, false);
         sleep(2000);
         EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, -65, -65, -65, -65, 6);
-        GyroTurn((turtlerobot, -90)); //right
+        GyroTurn((turtlerobot, 90)); //left
         EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 24, 24, 24, 24, 4);
         collectdrop(turtlerobot, false);
         sleep(1000);
         EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, -24, -24, -24, -24, 4);
-        GyroTurn(turtlerobot, -90); //right
+        GyroTurn(turtlerobot, 90); //left
         EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 72, 72, 72, 72, 7);
 
 

@@ -22,7 +22,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TfodCurrentGame;
 
 @Autonomous
-public class AutonomousRedWarehouse extends LinearOpMode {
+public class AutonomousRedStorageunit extends LinearOpMode {
     TurtleRobot        turtlerobot   = new TurtleRobot();   // Use a Pushbot's hardware
     private ElapsedTime     runtime = new ElapsedTime();
     static final double COUNTS_PER_MOTOR_REV = 28;    // eg: TETRIX Motor Encoder
@@ -59,7 +59,7 @@ public class AutonomousRedWarehouse extends LinearOpMode {
         // Each square floor tile is 24 by 24 inches
         EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 10, 10, 10, 10, 3);
         GyroTurn(turtlerobot, 90); //left
-        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 65, 65, 65, 65, 6);  // S1: Forward 47 Inches with 5 Sec timeout
+        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 20, 20, 20, 20, 5);  // S1: Forward 47 Inches with 5 Sec timeout
         moveCarousel(turtlerobot, true);
         sleep(2000);
         EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, -65, -65, -65, -65, 6);
@@ -68,8 +68,13 @@ public class AutonomousRedWarehouse extends LinearOpMode {
         collectdrop(turtlerobot, false);
         sleep(1000);
         EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, -24, -24, -24, -24, 4);
+        GyroTurn(turtlerobot, 90); //left
+        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 10, 10, 10, 10, 4);
         GyroTurn(turtlerobot, -90); //right
-        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 72, 72, 72, 72, 7);
+        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 20, 20, 20, 20, 3);
+        GyroTurn(turtlerobot, 90); //left
+        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 24, 24, 24, 24, 7);
+
 
 
         //EncoderDrive(turtlerobot,turtlerobot.TURN_SPEED, -10, -10, -3, -3, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
