@@ -97,7 +97,7 @@ public class AutonomousRedWarehouse extends LinearOpMode {
         moveCarousel(turtlerobot, true);
         sleep(2000);
         EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, -65, -65, -65, -65, 6);
-        GyroTurn((turtlerobot, -90)); //right
+        GyroTurn(turtlerobot, -90); //right
         EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 24, 24, 24, 24, 4);
         collectdrop(turtlerobot, false);
         sleep(1000);
