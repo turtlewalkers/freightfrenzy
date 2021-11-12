@@ -32,6 +32,7 @@ public class AutonomousRedWarehouse extends LinearOpMode {
             (WHEEL_DIAMETER_INCHES * 3.1415);
     static final double DRIVE_SPEED = 0.5;
     static final double TURN_SPEED = 0.1;
+    int counter = 0;
 
     @Override
     public void runOpMode() {
@@ -58,18 +59,21 @@ public class AutonomousRedWarehouse extends LinearOpMode {
         // Field is 144 by 144 inches
         // Each square floor tile is 24 by 24 inches
         EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 10, 10, 10, 10, 3);
-        GyroTurn(turtlerobot, -90); //right
+        EncoderDrive(turtlerobot, turtlerobot.TURN_SPEED, 10, 10, -10, -10, 3); //right
         EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 65, 65, 65, 65, 6);  // S1: Forward 47 Inches with 5 Sec timeout
-        moveCarousel(turtlerobot, false);
-        sleep(2000);
+        while(counter != 5)
+            moveCarousel(turtlerobot, true);
+            sleep(1000);
+            EncoderDrive(turtlerobot, turtlerobot.SLOW_SPEED, 0.5, 0.5, 0.5, 0.5, 1);
+            counter += 1
         EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, -65, -65, -65, -65, 6);
-        GyroTurn((turtlerobot, 90)); //left
-        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 24, 24, 24, 24, 4);
+        EncoderDrive(turtlerobot, turtlerobot.TURN_SPEED, -10, -10, 10, 10, 3); //left
+        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 10, 10, 10, 10, 4);
         collectdrop(turtlerobot, false);
         sleep(1000);
-        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, -24, -24, -24, -24, 4);
-        GyroTurn(turtlerobot, 90); //left
-        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 72, 72, 72, 72, 7);
+        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, -10, -10, -10, -10, 4);
+        EncoderDrive(turtlerobot, turtlerobot.TURN_SPEED, -10, -10, 10, 10, 3); //left
+        EncoderDrive(turtlerobot, turtlerobot.FAST_SPEED, 72, 72, 72, 72, 7););
 
 
         //EncoderDrive(turtlerobot,turtlerobot.TURN_SPEED, -10, -10, -3, -3, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
