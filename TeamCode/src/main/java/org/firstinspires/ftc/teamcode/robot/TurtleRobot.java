@@ -33,11 +33,13 @@ import java.util.List;
  * This hardware class assumes the following device names have been configured on the robot:
  * Note:  All names are lower case and some have single spaces between words.
  *
- * Motor channel:  Left  drive motor:        "left_drive"
- * Motor channel:  Right drive motor:        "right_drive"
- * Motor channel:  Manipulator drive motor:  "left_arm"
- * Servo channel:  Servo to open left claw:  "left_hand"
- * Servo channel:  Servo to open right claw: "right_hand"
+ * Motor channel:  Left Front drive motor:        "leftfrontmotr"
+ * Motor channel:  Right Front drive motor:        "rightfrontmotor"
+ * Motor channel:  Right Back drive motor:         "rightbackmotor"
+ * Motor channel:  Left Back drive motor:          "leftbackmotor"
+ * Motor channel:  Arm  motor:  "ArmMotor"
+ * Servo channel:  Servo to collect balls:   "armservo"
+ * Servo channel:  Carousel motor: "Carouselmotor1"
  */
 public class TurtleRobot {
     /* Public OpMode members. */
@@ -45,9 +47,9 @@ public class TurtleRobot {
     public DcMotor rightbackmotor = null;
     public DcMotor leftfrontmotor = null;
     public DcMotor leftbackmotor = null;
-    public DcMotor armmotor = null;
+    public DcMotor ArmMotor = null;
     public DcMotor Carouselmotor1 = null;
-    public CRServo intakeservo = null;
+    public CRServo armservo = null;
     public VuforiaCurrentGame vuforiaFreightFrenzy;
     public TfodCurrentGame tfodFreightFrenzy;
     public ElapsedTime runtime = new ElapsedTime();
@@ -59,8 +61,10 @@ public class TurtleRobot {
     public static final double WHEEL_DIAMETER_INCHES = 120 / 25.4;     // For figuring circumference
     public static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
-    public static final double DRIVE_SPEED = 1;
+    public static final double DRIVE_SPEED = 0.31;
     public static final double TURN_SPEED = 0.1;
+    public static final double SLOW_SPEED = 0.1;
+    public static final double FAST_SPEED = 0.5;
 
 
     /* local OpMode members. */
@@ -79,14 +83,14 @@ public class TurtleRobot {
         int pos;
         // Save reference to Hardware map
         hwMap = ahwMap;
-        intakeservo = hwMap.get(CRServo.class, "ArmServo");
+        armservo = hwMap.get(CRServo.class, "armservo");
         // Define and Initialize Motors
         leftfrontmotor = hwMap.get(DcMotor.class, "leftfrontmotor");
         leftbackmotor = hwMap.get(DcMotor.class, "leftbackmotor");
         rightfrontmotor = hwMap.get(DcMotor.class, "rightfrontmotor");
         rightbackmotor = hwMap.get(DcMotor.class, "rightbackmotor");
-        // armmotor = hwMap.get(DcMotor.class, "arm_motor")
-        // carouselmotor = hwMap.get(DcMotor.class, "carousel_motor")
+        ArmMotor = hwMap.get(DcMotor.class, "ArmMotor");
+        Carouselmotor1 = hwMap.get(DcMotor.class, "Carouselmotor1");
         leftfrontmotor.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
         leftbackmotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
 
@@ -95,9 +99,9 @@ public class TurtleRobot {
         leftbackmotor.setPower(0);
         rightfrontmotor.setPower(0);
         rightbackmotor.setPower(0);
-        armmotor.setPower(0);
+        ArmMotor.setPower(0);
         Carouselmotor1.setPower(0);
-        intakeservo.setPower(0);
+        armservo.setPower(0);
 
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
