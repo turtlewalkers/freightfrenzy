@@ -20,9 +20,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaCurrentGame;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TfodCurrentGame;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import java.util.List;
 
 @Autonomous
-public class AutonomousRedWarehouse extends LinearOpMode {
+public class AutonomousBlueWarehouse extends LinearOpMode {
     TurtleRobot        turtlerobot   = new TurtleRobot();   // Use a Pushbot's hardware
     private ElapsedTime     runtime = new ElapsedTime();
     static final double COUNTS_PER_MOTOR_REV = 28;    // eg: TETRIX Motor Encoder
@@ -30,12 +33,22 @@ public class AutonomousRedWarehouse extends LinearOpMode {
     static final double WHEEL_DIAMETER_INCHES = 120 / 25.4;     // For figuring circumference
     static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
-    static final double DRIVE_SPEED = 0.5;
+    static final double DRIVE_SPEED = 0.01;
     static final double TURN_SPEED = 0.1;
     int counter = 0;
+    Recognition recognition;
+
+    VuforiaCurrentGame vuforiaFreightFrenzy;
+    TfodCurrentGame tfodFreightFrenzy;
 
     @Override
     public void runOpMode() {
+        List<Recognition> recognitions;
+        int index;
+        int pos;
+        int duckPos = 3;
+
+        initCam();
         turtlerobot.init(hardwareMap);
         telemetry.addData("Status", "Resetting Encoders");    //
         telemetry.update();
@@ -55,29 +68,35 @@ public class AutonomousRedWarehouse extends LinearOpMode {
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
+        ElapsedTime     duckruntime = new ElapsedTime();
+        duckruntime.reset();
+
+        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 2.5, 2.5, 2.5, 2.5, 1);
+        // Get the duck position
+        while (duckruntime.seconds() < 3) {
+            EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 1.5, 1.5, 1.5, 1.5, 1);
+            EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, -1, -1, -1, -1, 1);
+            sleep(333);
+            duckPos = recognizeDuckPosition();
+        }
+        telemetry.addData("Duck Position: %d", duckPos);
+        telemetry.update();
+
+
 
         // Field is 144 by 144 inches
-        // Each square floor tile is 24 by 24 inches
+        // Each square floor tile is 2 4 by 24 inches
         EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 10, 10, 10, 10, 3);
-        EncoderDrive(turtlerobot, turtlerobot.TURN_SPEED, 10, 10, -10, -10, 3); //right
-        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 65, 65, 65, 65, 6);  // S1: Forward 47 Inches with 5 Sec timeout
-        while(counter != 5)
-            moveCarousel(turtlerobot, true);
-            sleep(1000);
-            EncoderDrive(turtlerobot, turtlerobot.SLOW_SPEED, 0.5, 0.5, 0.5, 0.5, 1);
-            counter += 1
-        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, -65, -65, -65, -65, 6);
-        EncoderDrive(turtlerobot, turtlerobot.TURN_SPEED, -10, -10, 10, 10, 3); //left
-        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 10, 10, 10, 10, 4);
-        collectdrop(turtlerobot, false);
-        sleep(1000);
-        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, -10, -10, -10, -10, 4);
-        EncoderDrive(turtlerobot, turtlerobot.TURN_SPEED, -10, -10, 10, 10, 3); //left
-        EncoderDrive(turtlerobot, turtlerobot.FAST_SPEED, 72, 72, 72, 72, 7););
-
-
-        //EncoderDrive(turtlerobot,turtlerobot.TURN_SPEED, -10, -10, -3, -3, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
+        EncoderDrive(turtlerobot, turtlerobot.TURN_SPEED, 5, 5, -5, -5, 3); //right
+        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 14.5, 14.5, 14.5, 14.5, 5);
+        arm(turtlerobot, turtlerobot.DRIVE_SPEED, (duckPos*11), 3);
+        collectdrop(turtlerobot, true);
+        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, -3, -3, -3, -3, 6);
+        EncoderDrive(turtlerobot, turtlerobot.TURN_SPEED, 7, 7, -7, -7, 3); //left
+        EncoderDrive(turtlerobot,turtlerobot.FAST_SPEED, -50, -50, -50, -50, 4);
     }
+
+
     public void EncoderDrive(TurtleRobot turtlerobot, double speed,
                              double leftfrontInches, double leftbackInches,
                              double rightfrontInches, double rightbackInches,
@@ -109,10 +128,10 @@ public class AutonomousRedWarehouse extends LinearOpMode {
 
             // reset the timeout time and start motion.
             runtime.reset();
-            turtlerobot.leftfrontmotor.setPower(Math.abs(speed));
-            turtlerobot.leftbackmotor.setPower(Math.abs(speed));
-            turtlerobot.rightfrontmotor.setPower(Math.abs(speed));
-            turtlerobot.rightbackmotor.setPower(Math.abs(speed));
+            turtlerobot.leftfrontmotor.setPower((Math.abs(speed)));
+            turtlerobot.leftbackmotor.setPower((Math.abs(speed)));
+            turtlerobot.rightfrontmotor.setPower((Math.abs(speed)));
+            turtlerobot.rightbackmotor.setPower((Math.abs(speed)));
 
             // keep looping while we are still active, and there is time left, and both motors are running.
             // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
@@ -157,7 +176,7 @@ public class AutonomousRedWarehouse extends LinearOpMode {
         }
     }
 
-    public void GyroTurn(TurtleRobot turtlerobot, double yawangle) {
+    public void GyroTurn(TurtleRobot turtlerobot, int turnangle) {
         BNO055IMU.Parameters IMU_Parameters;
         ElapsedTime ElapsedTime2;
         double Left_Power;
@@ -193,16 +212,16 @@ public class AutonomousRedWarehouse extends LinearOpMode {
             sleep(1000);
         }
         // Report calibration complete to Driver Station.
-        telemetry.addData("Status", "Calibration Complete");
-        telemetry.addData("Action needed:", "Please press the start triangle");
-        telemetry.update();
+        //telemetry.addData("Status", "Calibration Complete");
+        //telemetry.addData("Action needed:", "Please press the start triangle");
+        //telemetry.update();
         // Wait for Start to be pressed on Driver Station.
         ElapsedTime2 = new ElapsedTime();
         // Set motor powers to the variable values.
-        Yaw_Angle = turtlerobot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES).thirdAngle;
-        while (Yaw_Angle <= 90 || isStopRequested()) {
+        Yaw_Angle = turtlerobot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).thirdAngle;
+        while (Yaw_Angle <= turnangle || isStopRequested()) {
             // Update Yaw-Angle variable with current yaw.
-            Yaw_Angle = turtlerobot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES).thirdAngle;
+            Yaw_Angle = turtlerobot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).thirdAngle;
             turtlerobot.leftfrontmotor.setPower(-0.2);
             turtlerobot.leftbackmotor.setPower(-0.2);
             turtlerobot.rightfrontmotor.setPower(0.2);
@@ -217,20 +236,30 @@ public class AutonomousRedWarehouse extends LinearOpMode {
         turtlerobot.leftbackmotor.setPower(0);
         sleep(1000);
     }
-    public void moveCarousel(TurtleRobot turtlerobot, boolean direction) {
+    public void startCarousel(TurtleRobot turtlerobot, boolean direction) {
         if (direction == true) {
             turtlerobot.Carouselmotor1.setPower(-0.25);
         } else if (direction == false) {
             turtlerobot.Carouselmotor1.setPower(0.25);
         }
     }
+
+    public void stopCarousel(TurtleRobot turtlerobot) {
+        turtlerobot.Carouselmotor1.setPower(0);
+    }
+
     public void collectdrop(TurtleRobot turtlerobot, boolean cargo) {
         if (cargo == true) {
-            turtlerobot.intakeservo.setPower(-0.25);
+            turtlerobot.armservo.setPower(-1);
+            sleep(1000);
+            turtlerobot.armservo.setPower(0);
         } else if (cargo == false) {
-            turtlerobot.intakeservo.setPower(0.25);
+            turtlerobot.armservo.setPower(1);
+            sleep(1000);
+            turtlerobot.armservo.setPower(0);
         }
     }
+
     /**
      * Function that becomes true when gyro is calibrated and
      * reports calibration status to Driver Station in the meantime.
@@ -241,5 +270,134 @@ public class AutonomousRedWarehouse extends LinearOpMode {
         telemetry.addData("System Status", turtlerobot.imu.getSystemStatus().toString());
         return turtlerobot.imu.isGyroCalibrated();
     }
-}
 
+    public int recognizeDuckPosition() {
+        int pos = 4;
+        List<Recognition> recognitions;
+        int index;
+        recognitions = tfodFreightFrenzy.getRecognitions();
+        // If list is empty, inform the user. Otherwise, go
+        // through list and display info for each recognition.
+        if (recognitions.size() == 0) {
+            telemetry.addData("TFOD", "No items detected.");
+            pos = 1;
+        } else {
+            index = 0;
+            // Iterate through list and call a function to
+            // display info for each recognized object.
+            for (Recognition recognition_item : recognitions) {
+                recognition = recognition_item;
+                // Display info.
+                displayInfo(index);
+                if (recognition.getLabel().equals("Duck")) {
+                    if (recognition.getLeft() < 150) {
+                        telemetry.addData("Duck", "Middle");
+                        pos = 2;
+                    } else if (recognition.getLeft() > 150) {
+                        telemetry.addData("Duck", "Right");
+                        pos= 3;
+                    }
+                } else {
+                    telemetry.addData("Duck", "Left");
+                    pos=2;
+                }
+                // Increment index.
+                index = index + 1;
+            }
+        }
+        telemetry.update();
+        return pos;
+    }
+
+    public void initCam() {
+        vuforiaFreightFrenzy = new VuforiaCurrentGame();
+        tfodFreightFrenzy = new TfodCurrentGame();
+
+        // Sample TFOD Op Mode
+        // Initialize Vuforia.
+        vuforiaFreightFrenzy.initialize(
+                "", // vuforiaLicenseKey
+                hardwareMap.get(WebcamName.class, "Webcam 1"), // cameraName
+                "", // webcamCalibrationFilename
+                false, // useExtendedTracking
+                false, // enableCameraMonitoring
+                VuforiaLocalizer.Parameters.CameraMonitorFeedback.AXES, // cameraMonitorFeedback
+                0, // dx
+                0, // dy
+                0, // dz
+                90, // xAngle
+                0, // yAngle
+                90, // zAngle
+                true); // useCompetitionFieldTargetLocations
+        // Set min confidence threshold to 0.7
+        tfodFreightFrenzy.initialize(vuforiaFreightFrenzy, (float) 0.7, true, true);
+        // Initialize TFOD before waitForStart.
+        // Init TFOD here so the object detection labels are visible
+        // in the Camera Stream preview window on the Driver Station.
+        tfodFreightFrenzy.activate();
+        // Enable following block to zoom in on target.\
+        tfodFreightFrenzy.setZoom(1, 16/9);
+        telemetry.addData(">", "Press Play to start");
+        telemetry.update();
+    }
+    public void arm(TurtleRobot turtlerobot, double speed,
+                    double arminches,
+                    double timeoutS) {
+        int armtarget;
+
+        // Ensure that the opmode is still active
+        if (opModeIsActive()) {
+
+            // Determine new target position, and pass to motor controller
+            armtarget = turtlerobot.ArmMotor.getCurrentPosition() + (int) (arminches * turtlerobot.COUNTS_PER_INCH);
+            turtlerobot.ArmMotor.setTargetPosition(armtarget);
+
+
+            // Turn On RUN_TO_POSITION
+            turtlerobot.ArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            // reset the timeout time and start motion.
+            runtime.reset();
+            turtlerobot.ArmMotor.setPower((Math.abs(speed)));
+
+            // keep looping while we are still active, and there is time left, and both motors are running.
+            // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
+            // its target position, the motion will stop.  This is "safer" in the event that the  will
+            // always end the motion as soon as possible.
+            // However, if you require that BOTH motors have finished their moves before the  continues
+            // onto the next step, use (isBusy() || isBusy()) in the loop test.
+            while (opModeIsActive() &&
+                    (runtime.seconds() < timeoutS)
+                    && (turtlerobot.ArmMotor.isBusy())) {
+
+                // Display it for the driver.
+                telemetry.addData("Path1", "Running to :%7d",
+                        armtarget);
+                telemetry.addData("Path2", "Running at :%7d",
+                        turtlerobot.ArmMotor.getCurrentPosition());
+                telemetry.update();
+            }
+
+            // Stop all motion;
+            turtlerobot.ArmMotor.setPower(0);
+
+            // Turn off RUN_TO_POSITION
+            turtlerobot.ArmMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            //  sleep(250);   // optional pause after each move
+        }
+    }
+
+    public void displayInfo(int i) {
+        // Display label info.
+        // Display the label and index number for the recognition.
+        telemetry.addData("label " + i, recognition.getLabel());
+        // Display upper corner info.
+        // Display the location of the top left corner
+        // of the detection boundary for the recognition
+        telemetry.addData("Left, Top " + i, recognition.getLeft() + ", " + recognition.getTop());
+        // Display lower corner info.
+        // Display the location of the bottom right corner
+        // of the detection boundary for the recognition
+        telemetry.addData("Right, Bottom " + i, recognition.getRight() + ", " + recognition.getBottom());
+    }
+}

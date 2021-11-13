@@ -20,6 +20,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaCurrentGame;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TfodCurrentGame;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import java.util.List;
 
 @Autonomous
 public class AutonomousRedStorageunit extends LinearOpMode {
@@ -30,14 +33,22 @@ public class AutonomousRedStorageunit extends LinearOpMode {
     static final double WHEEL_DIAMETER_INCHES = 120 / 25.4;     // For figuring circumference
     static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
-    static final double DRIVE_SPEED = 0.5;
+    static final double DRIVE_SPEED = 0.01;
     static final double TURN_SPEED = 0.1;
     int counter = 0;
+    Recognition recognition;
 
-
+    VuforiaCurrentGame vuforiaFreightFrenzy;
+    TfodCurrentGame tfodFreightFrenzy;
 
     @Override
     public void runOpMode() {
+        List<Recognition> recognitions;
+        int index;
+        int pos;
+        int duckPos = 3;
+
+        initCam();
         turtlerobot.init(hardwareMap);
         telemetry.addData("Status", "Resetting Encoders");    //
         telemetry.update();
@@ -57,153 +68,52 @@ public class AutonomousRedStorageunit extends LinearOpMode {
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
+        ElapsedTime     duckruntime = new ElapsedTime();
+        duckruntime.reset();
+
+        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 2.5, 2.5, 2.5, 2.5, 1);
+        // Get the duck position
+        while (duckruntime.seconds() < 3) {
+            EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 1.5, 1.5, 1.5, 1.5, 1);
+            EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, -1, -1, -1, -1, 1);
+            sleep(333);
+            duckPos = recognizeDuckPosition();
+        }
+        telemetry.addData("Duck Position: %d", duckPos);
+        telemetry.update();
+
+
 
         // Field is 144 by 144 inches
-        // Each square floor tile is 24 by 24 inches
+        // Each square floor tile is 2 4 by 24 inches
         EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 10, 10, 10, 10, 3);
-        EncoderDrive(turtlerobot, turtlerobot.TURN_SPEED, 10, 10 , -10, -10, 3); //right
-        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 24, 24, 24, 24, 5);  // S1: Forward 47 Inches with 5 Sec timeout
-        EncoderDrive(turtlerobot, turtlerobot.TURN_SPEED, -10, -10 , 10, 10, 3); //left
-        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 10, 10 ,10, 10, 3);
-        collectdrop(turtlerobot, false);
-        sleep(1000)
-        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, -10, -10 ,-10, -10, 3);
-        EncoderDrive(turtlerobot, turtlerobot.TURN_SPEED, -10, -10 , 10, 10, 3); //left
-        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 30, 30 ,30, 30, 5);
-        while(counter != 5)
-            moveCarousel(turtlerobot, true);
-            sleep(1000);
-            EncoderDrive(turtlerobot, turtlerobot.SLOW_SPEED, 0.5, 0.5, 0.5, 0.5, 1);
-            counter += 1
-        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, -10, -10, -10, -10, 3);
-        EncoderDrive(turtlerobot, turtlerobot.TURN_SPEED, 10, 10 , -10, -10, 3); //right
-        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 15, 15,15, 15, 3);
-        EncoderDrive(turtlerobot, turtlerobot.TURN_SPEED, -10, -10 , 10, 10, 3); //left
-        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 15, 15, 15, 15, 4);
-
-
-        /*GyroTurn((turtlerobot, -90)); //right
-        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 24, 24, 24, 24, 4);
-        moveCarousel(turtlerobot, true);
-        sleep(2000);
-        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, -24, -24, -24, -24, 4);
-        GyroTurn(turtlerobot, 90); //left
-        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 10, 10, 10, 10, 4);
-        GyroTurn(turtlerobot, -90); //right
-        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 20, 20, 20, 20, 3);
-        GyroTurn(turtlerobot, 90); //left
-        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 24, 24, 24, 24, 7);
-
-*/
-
-        gyro = turtlerobot.imu;
-
-        // Ensure the robot it stationary, then reset the encoders and calibrate the gyro.
-        robot.leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        // Send telemetry message to alert driver that we are calibrating;
-        telemetry.addData(">", "Calibrating Gyro");    //
-        telemetry.update();
-
-        gyro.calibrate();
-
-        // make sure the gyro is calibrated before continuing
-        while (!isStopRequested() && gyro.isCalibrating())  {
-            sleep(50);
-            idle();
+        EncoderDrive(turtlerobot, turtlerobot.TURN_SPEED, 4, 4, -4, -4, 3); //right
+        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 13, 13, 13, 13, 5);  // S1: Forward 47 Inches with 5 Sec timeout
+        //EncoderDrive(turtlerobot, turtlerobot.TURN_SPEED, -12.5, -12.5 , 12.5, 12.5, 3); //left
+        arm(turtlerobot, turtlerobot.DRIVE_SPEED, (duckPos*11), 3);
+        collectdrop(turtlerobot, true);
+        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, -16, -16 ,-16, -16, 3);
+        arm(turtlerobot, turtlerobot.FAST_SPEED, (duckPos*-2), 1);
+        arm(turtlerobot, turtlerobot.FAST_SPEED, 53, 6);
+        //EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, -12.5, -12.5 ,-12.5, -12.5, 3);
+        EncoderDrive(turtlerobot, turtlerobot.TURN_SPEED, -14.5, -14.5, 14.5, 14.5, 3); //left
+        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 19, 19 ,19 , 19, 5);
+        while(counter != 6) {
+            startCarousel(turtlerobot, true);
+            sleep(500);
+            EncoderDrive(turtlerobot, turtlerobot.SLOW_SPEED, 0.2/counter, 0.2/counter, 0.2/counter, 0.2/counter, 1);
+            counter += 1;
         }
+        stopCarousel(turtlerobot);
 
-        telemetry.addData(">", "Robot Ready.");    //
-        telemetry.update();
-
-        robot.leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        // Wait for the game to start (Display Gyro value), and reset gyro before we move..
-        while (!isStarted()) {
-            telemetry.addData(">", "Robot Heading = %d", gyro.getIntegratedZValue());
-            telemetry.update();
-        }
-
-        gyro.resetZAxisIntegrator();
-
-        // Step through each leg of the path,
-        // Note: Reverse movement is obtained by setting a negative distance (not speed)
-        // Put a hold after each turn
-        gyroTurn( TURN_SPEED, -45.0);         // Turn  CCW to -45 Degrees
-        gyroHold( TURN_SPEED, -45.0, 0.5);    // Hold -45 Deg heading for a 1/2 second
-
-        telemetry.addData("Path", "Complete");
-        telemetry.update();
-
-
-
+        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, -11, -11, -11, -11, 3);
+        EncoderDrive(turtlerobot, turtlerobot.TURN_SPEED, 12.5, 12.5 , -12.5, -12.5, 3); //right
+        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 17, 17,17, 17, 3);
+        //EncoderDrive(turtlerobot, turtlerobot.TURN_SPEED, -10, -10 , 10, 10, 3); //left
+        //EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 16, 16, 16, 16, 4);
     }
 
-            if (opModeIsActive()) {
 
-        // Determine new target position, and pass to motor controller
-        moveCounts = (int)(distance * COUNTS_PER_INCH);
-        newLeftTarget = robot.leftDrive.getCurrentPosition() + moveCounts;
-        newRightTarget = robot.rightDrive.getCurrentPosition() + moveCounts;
-
-        // Set Target and Turn On RUN_TO_POSITION
-        robot.leftDrive.setTargetPosition(newLeftTarget);
-        robot.rightDrive.setTargetPosition(newRightTarget);
-
-        robot.leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        // start motion.
-        speed = Range.clip(Math.abs(speed), 0.0, 1.0);
-        robot.leftDrive.setPower(speed);
-        robot.rightDrive.setPower(speed);
-
-        // keep looping while we are still active, and BOTH motors are running.
-        while (opModeIsActive() &&
-                (robot.leftDrive.isBusy() && robot.rightDrive.isBusy())) {
-
-            // adjust relative speed based on heading error.
-            error = getError(angle);
-            steer = getSteer(error, P_DRIVE_COEFF);
-
-            // if driving in reverse, the motor correction also needs to be reversed
-            if (distance < 0)
-                steer *= -1.0;
-
-            leftSpeed = speed - steer;
-            rightSpeed = speed + steer;
-
-            // Normalize speeds if either one exceeds +/- 1.0;
-            max = Math.max(Math.abs(leftSpeed), Math.abs(rightSpeed));
-            if (max > 1.0)
-            {
-                leftSpeed /= max;
-                rightSpeed /= max;
-            }
-
-            robot.leftDrive.setPower(leftSpeed);
-            robot.rightDrive.setPower(rightSpeed);
-
-            // Display drive status for the driver.
-            telemetry.addData("Err/St",  "%5.1f/%5.1f",  error, steer);
-            telemetry.addData("Target",  "%7d:%7d",      newLeftTarget,  newRightTarget);
-            telemetry.addData("Actual",  "%7d:%7d",      robot.leftDrive.getCurrentPosition(),
-                    robot.rightDrive.getCurrentPosition());
-            telemetry.addData("Speed",   "%5.2f:%5.2f",  leftSpeed, rightSpeed);
-            telemetry.update();
-        }
-
-        // Stop all motion;
-        robot.leftDrive.setPower(0);
-        robot.rightDrive.setPower(0);
-
-        // Turn off RUN_TO_POSITION
-        robot.leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    }
-}
     public void EncoderDrive(TurtleRobot turtlerobot, double speed,
                              double leftfrontInches, double leftbackInches,
                              double rightfrontInches, double rightbackInches,
@@ -235,10 +145,10 @@ public class AutonomousRedStorageunit extends LinearOpMode {
 
             // reset the timeout time and start motion.
             runtime.reset();
-            turtlerobot.leftfrontmotor.setPower(Math.abs(speed));
-            turtlerobot.leftbackmotor.setPower(Math.abs(speed));
-            turtlerobot.rightfrontmotor.setPower(Math.abs(speed));
-            turtlerobot.rightbackmotor.setPower(Math.abs(speed));
+            turtlerobot.leftfrontmotor.setPower((Math.abs(speed)));
+            turtlerobot.leftbackmotor.setPower((Math.abs(speed)));
+            turtlerobot.rightfrontmotor.setPower((Math.abs(speed)));
+            turtlerobot.rightbackmotor.setPower((Math.abs(speed)));
 
             // keep looping while we are still active, and there is time left, and both motors are running.
             // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
@@ -283,216 +193,12 @@ public class AutonomousRedStorageunit extends LinearOpMode {
         }
     }
 
-
-    public void GyroTurn(TurtleRobot turtlerobot, double yawangle) {
+    public void GyroTurn(TurtleRobot turtlerobot, int turnangle) {
         BNO055IMU.Parameters IMU_Parameters;
         ElapsedTime ElapsedTime2;
         double Left_Power;
         double Right_Power;
         float Yaw_Angle;
-
-    public void GyroInitiazation() {
-        static final double     HEADING_THRESHOLD       = 1 ;      // As tight as we can make it with an integer gyro
-        static final double     P_TURN_COEFF            = 0.1;     // Larger is more responsive, but also less stable
-        static final double     P_DRIVE_COEFF           = 0.15;     // Larger is more responsive, but also less stable
-
-
-        @Override
-
-    }
-
-
-
-    public void gyroDrive ( double speed,
-                            double distance,
-                            double angle) {
-
-        int     newLeftTarget;
-        int     newRightTarget;
-        int     moveCounts;
-        double  max;
-        double  error;
-        double  steer;
-        double  leftSpeed;
-        double  rightSpeed;
-
-        // Ensure that the opmode is still active
-        if (opModeIsActive()) {
-
-            // Determine new target position, and pass to motor controller
-            moveCounts = (int)(distance * COUNTS_PER_INCH);
-            newLeftTarget = robot.leftDrive.getCurrentPosition() + moveCounts;
-            newRightTarget = robot.rightDrive.getCurrentPosition() + moveCounts;
-
-            // Set Target and Turn On RUN_TO_POSITION
-            robot.leftDrive.setTargetPosition(newLeftTarget);
-            robot.rightDrive.setTargetPosition(newRightTarget);
-
-            robot.leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            robot.rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-            // start motion.
-            speed = Range.clip(Math.abs(speed), 0.0, 1.0);
-            robot.leftDrive.setPower(speed);
-            robot.rightDrive.setPower(speed);
-
-            // keep looping while we are still active, and BOTH motors are running.
-            while (opModeIsActive() &&
-                    (robot.leftDrive.isBusy() && robot.rightDrive.isBusy())) {
-
-                // adjust relative speed based on heading error.
-                error = getError(angle);
-                steer = getSteer(error, P_DRIVE_COEFF);
-
-                // if driving in reverse, the motor correction also needs to be reversed
-                if (distance < 0)
-                    steer *= -1.0;
-
-                leftSpeed = speed - steer;
-                rightSpeed = speed + steer;
-
-                // Normalize speeds if either one exceeds +/- 1.0;
-                max = Math.max(Math.abs(leftSpeed), Math.abs(rightSpeed));
-                if (max > 1.0)
-                {
-                    leftSpeed /= max;
-                    rightSpeed /= max;
-                }
-
-                robot.leftDrive.setPower(leftSpeed);
-                robot.rightDrive.setPower(rightSpeed);
-
-                // Display drive status for the driver.
-                telemetry.addData("Err/St",  "%5.1f/%5.1f",  error, steer);
-                telemetry.addData("Target",  "%7d:%7d",      newLeftTarget,  newRightTarget);
-                telemetry.addData("Actual",  "%7d:%7d",      robot.leftDrive.getCurrentPosition(),
-                        robot.rightDrive.getCurrentPosition());
-                telemetry.addData("Speed",   "%5.2f:%5.2f",  leftSpeed, rightSpeed);
-                telemetry.update();
-            }
-
-            // Stop all motion;
-            robot.leftDrive.setPower(0);
-            robot.rightDrive.setPower(0);
-
-            // Turn off RUN_TO_POSITION
-            robot.leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
-    }
-
-
-    public void gyroTurn (  double speed, double angle) {
-
-        // keep looping while we are still active, and not on heading.
-        while (opModeIsActive() && !onHeading(speed, angle, P_TURN_COEFF)) {
-            // Update telemetry & Allow time for other processes to run.
-            telemetry.update();
-        }
-    }
-
-    /**
-     *  Method to obtain & hold a heading for a finite amount of time
-     *  Move will stop once the requested time has elapsed
-     *
-     * @param speed      Desired speed of turn.
-     * @param angle      Absolute Angle (in Degrees) relative to last gyro reset.
-     *                   0 = fwd. +ve is CCW from fwd. -ve is CW from forward.
-     *                   If a relative angle is required, add/subtract from current heading.
-     * @param holdTime   Length of time (in seconds) to hold the specified heading.
-     */
-    public void gyroHold( double speed, double angle, double holdTime) {
-
-        ElapsedTime holdTimer = new ElapsedTime();
-
-        // keep looping while we have time remaining.
-        holdTimer.reset();
-        while (opModeIsActive() && (holdTimer.time() < holdTime)) {
-            // Update telemetry & Allow time for other processes to run.
-            onHeading(speed, angle, P_TURN_COEFF);
-            telemetry.update();
-        }
-
-        // Stop all motion;
-        robot.leftDrive.setPower(0);
-        robot.rightDrive.setPower(0);
-    }
-
-    /**
-     * Perform one cycle of closed loop heading control.
-     *
-     * @param speed     Desired speed of turn.
-     * @param angle     Absolute Angle (in Degrees) relative to last gyro reset.
-     *                  0 = fwd. +ve is CCW from fwd. -ve is CW from forward.
-     *                  If a relative angle is required, add/subtract from current heading.
-     * @param PCoeff    Proportional Gain coefficient
-     * @return
-     */
-    boolean onHeading(double speed, double angle, double PCoeff) {
-        double   error ;
-        double   steer ;
-        boolean  onTarget = false ;
-        double leftSpeed;
-        double rightSpeed;
-
-        // determine turn power based on +/- error
-        error = getError(angle);
-
-        if (Math.abs(error) <= HEADING_THRESHOLD) {
-            steer = 0.0;
-            leftSpeed  = 0.0;
-            rightSpeed = 0.0;
-            onTarget = true;
-        }
-        else {
-            steer = getSteer(error, PCoeff);
-            rightSpeed  = speed * steer;
-            leftSpeed   = -rightSpeed;
-        }
-
-        // Send desired speeds to motors.
-        robot.leftDrive.setPower(leftSpeed);
-        robot.rightDrive.setPower(rightSpeed);
-
-        // Display it for the driver.
-        telemetry.addData("Target", "%5.2f", angle);
-        telemetry.addData("Err/St", "%5.2f/%5.2f", error, steer);
-        telemetry.addData("Speed.", "%5.2f:%5.2f", leftSpeed, rightSpeed);
-
-        return onTarget;
-    }
-
-    /**
-     * getError determines the error between the target angle and the robot's current heading
-     * @param   targetAngle  Desired angle (relative to global reference established at last Gyro Reset).
-     * @return  error angle: Degrees in the range +/- 180. Centered on the robot's frame of reference
-     *          +ve error means the robot should turn LEFT (CCW) to reduce error.
-     */
-    public double getError(double targetAngle) {
-
-        double robotError;
-
-        // calculate error in -179 to +180 range  (
-        robotError = targetAngle - gyro.getIntegratedZValue();
-        while (robotError > 180)  robotError -= 360;
-        while (robotError <= -180) robotError += 360;
-        return robotError;
-    }
-
-    /**
-     * returns desired steering force.  +/- 1 range.  +ve = steer left
-     * @param error   Error angle in robot relative degrees
-     * @param PCoeff  Proportional Gain Coefficient
-     * @return
-     */
-    public double getSteer(double error, double PCoeff) {
-        return Range.clip(error * PCoeff, -1, 1);
-    }
-
-
-
-    public void GyroTurn(TurtleRobot turtlerobot, double turnangle) {
-
 
         turtlerobot.leftfrontmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         turtlerobot.leftbackmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -523,16 +229,16 @@ public class AutonomousRedStorageunit extends LinearOpMode {
             sleep(1000);
         }
         // Report calibration complete to Driver Station.
-        telemetry.addData("Status", "Calibration Complete");
-        telemetry.addData("Action needed:", "Please press the start triangle");
-        telemetry.update();
+        //telemetry.addData("Status", "Calibration Complete");
+        //telemetry.addData("Action needed:", "Please press the start triangle");
+        //telemetry.update();
         // Wait for Start to be pressed on Driver Station.
         ElapsedTime2 = new ElapsedTime();
         // Set motor powers to the variable values.
-        Yaw_Angle = turtlerobot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES).thirdAngle;
-        while (Yaw_Angle <= 90 || isStopRequested()) {
+        Yaw_Angle = turtlerobot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).thirdAngle;
+        while (Yaw_Angle <= turnangle || isStopRequested()) {
             // Update Yaw-Angle variable with current yaw.
-            Yaw_Angle = turtlerobot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES).thirdAngle;
+            Yaw_Angle = turtlerobot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).thirdAngle;
             turtlerobot.leftfrontmotor.setPower(-0.2);
             turtlerobot.leftbackmotor.setPower(-0.2);
             turtlerobot.rightfrontmotor.setPower(0.2);
@@ -547,20 +253,30 @@ public class AutonomousRedStorageunit extends LinearOpMode {
         turtlerobot.leftbackmotor.setPower(0);
         sleep(1000);
     }
-    public void moveCarousel(TurtleRobot turtlerobot, boolean direction) {
+    public void startCarousel(TurtleRobot turtlerobot, boolean direction) {
         if (direction == true) {
             turtlerobot.Carouselmotor1.setPower(-0.25);
         } else if (direction == false) {
             turtlerobot.Carouselmotor1.setPower(0.25);
         }
     }
+
+    public void stopCarousel(TurtleRobot turtlerobot) {
+        turtlerobot.Carouselmotor1.setPower(0);
+    }
+
     public void collectdrop(TurtleRobot turtlerobot, boolean cargo) {
         if (cargo == true) {
-            turtlerobot.intakeservo.setPower(-0.25);
+            turtlerobot.armservo.setPower(-1);
+            sleep(1000);
+            turtlerobot.armservo.setPower(0);
         } else if (cargo == false) {
-            turtlerobot.intakeservo.setPower(0.25);
+            turtlerobot.armservo.setPower(1);
+            sleep(1000);
+            turtlerobot.armservo.setPower(0);
         }
     }
+
     /**
      * Function that becomes true when gyro is calibrated and
      * reports calibration status to Driver Station in the meantime.
@@ -571,5 +287,134 @@ public class AutonomousRedStorageunit extends LinearOpMode {
         telemetry.addData("System Status", turtlerobot.imu.getSystemStatus().toString());
         return turtlerobot.imu.isGyroCalibrated();
     }
-}
 
+    public int recognizeDuckPosition() {
+        int pos = 4;
+        List<Recognition> recognitions;
+        int index;
+        recognitions = tfodFreightFrenzy.getRecognitions();
+        // If list is empty, inform the user. Otherwise, go
+        // through list and display info for each recognition.
+        if (recognitions.size() == 0) {
+            telemetry.addData("TFOD", "No items detected.");
+            pos = 1;
+        } else {
+            index = 0;
+            // Iterate through list and call a function to
+            // display info for each recognized object.
+            for (Recognition recognition_item : recognitions) {
+                recognition = recognition_item;
+                // Display info.
+                displayInfo(index);
+                if (recognition.getLabel().equals("Duck")) {
+                    if (recognition.getLeft() < 150) {
+                        telemetry.addData("Duck", "Middle");
+                        pos = 2;
+                    } else if (recognition.getLeft() > 150) {
+                        telemetry.addData("Duck", "Right");
+                        pos= 3;
+                    }
+                } else {
+                    telemetry.addData("Duck", "Left");
+                    pos=2;
+                }
+                // Increment index.
+                index = index + 1;
+            }
+        }
+        telemetry.update();
+        return pos;
+    }
+
+    public void initCam() {
+        vuforiaFreightFrenzy = new VuforiaCurrentGame();
+        tfodFreightFrenzy = new TfodCurrentGame();
+
+        // Sample TFOD Op Mode
+        // Initialize Vuforia.
+        vuforiaFreightFrenzy.initialize(
+                "", // vuforiaLicenseKey
+                hardwareMap.get(WebcamName.class, "Webcam 1"), // cameraName
+                "", // webcamCalibrationFilename
+                false, // useExtendedTracking
+                false, // enableCameraMonitoring
+                VuforiaLocalizer.Parameters.CameraMonitorFeedback.AXES, // cameraMonitorFeedback
+                0, // dx
+                0, // dy
+                0, // dz
+                90, // xAngle
+                0, // yAngle
+                90, // zAngle
+                true); // useCompetitionFieldTargetLocations
+        // Set min confidence threshold to 0.7
+        tfodFreightFrenzy.initialize(vuforiaFreightFrenzy, (float) 0.7, true, true);
+        // Initialize TFOD before waitForStart.
+        // Init TFOD here so the object detection labels are visible
+        // in the Camera Stream preview window on the Driver Station.
+        tfodFreightFrenzy.activate();
+        // Enable following block to zoom in on target.\
+        tfodFreightFrenzy.setZoom(1, 16/9);
+        telemetry.addData(">", "Press Play to start");
+        telemetry.update();
+    }
+    public void arm(TurtleRobot turtlerobot, double speed,
+                    double arminches,
+                    double timeoutS) {
+        int armtarget;
+
+        // Ensure that the opmode is still active
+        if (opModeIsActive()) {
+
+            // Determine new target position, and pass to motor controller
+            armtarget = turtlerobot.ArmMotor.getCurrentPosition() + (int) (arminches * turtlerobot.COUNTS_PER_INCH);
+            turtlerobot.ArmMotor.setTargetPosition(armtarget);
+
+
+            // Turn On RUN_TO_POSITION
+            turtlerobot.ArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            // reset the timeout time and start motion.
+            runtime.reset();
+            turtlerobot.ArmMotor.setPower((Math.abs(speed)));
+
+            // keep looping while we are still active, and there is time left, and both motors are running.
+            // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
+            // its target position, the motion will stop.  This is "safer" in the event that the  will
+            // always end the motion as soon as possible.
+            // However, if you require that BOTH motors have finished their moves before the  continues
+            // onto the next step, use (isBusy() || isBusy()) in the loop test.
+            while (opModeIsActive() &&
+                    (runtime.seconds() < timeoutS)
+                    && (turtlerobot.ArmMotor.isBusy())) {
+
+                // Display it for the driver.
+                telemetry.addData("Path1", "Running to :%7d",
+                        armtarget);
+                telemetry.addData("Path2", "Running at :%7d",
+                        turtlerobot.ArmMotor.getCurrentPosition());
+                telemetry.update();
+            }
+
+            // Stop all motion;
+            turtlerobot.ArmMotor.setPower(0);
+
+            // Turn off RUN_TO_POSITION
+            turtlerobot.ArmMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            //  sleep(250);   // optional pause after each move
+        }
+    }
+
+    public void displayInfo(int i) {
+        // Display label info.
+        // Display the label and index number for the recognition.
+        telemetry.addData("label " + i, recognition.getLabel());
+        // Display upper corner info.
+        // Display the location of the top left corner
+        // of the detection boundary for the recognition
+        telemetry.addData("Left, Top " + i, recognition.getLeft() + ", " + recognition.getTop());
+        // Display lower corner info.
+        // Display the location of the bottom right corner
+        // of the detection boundary for the recognition
+        telemetry.addData("Right, Bottom " + i, recognition.getRight() + ", " + recognition.getBottom());
+    }
+}
