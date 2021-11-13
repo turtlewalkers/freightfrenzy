@@ -60,18 +60,39 @@ public class AutonomousRedWarehouse extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         int cam = recognizeDuckPosition();
-        if (cam == 0) {
-            turtlerobot.rightbackmotor.setPower(1);
-            sleep(5000);
-            turtlerobot.rightbackmotor.setPower(0);
-        } else if (cam == 1) {
-            turtlerobot.leftfrontmotor.setPower(0.5);
-            sleep(1000);
-            turtlerobot.leftfrontmotor.setPower(0);
-        } else {
-            turtlerobot.leftbackmotor.setPower(0.1);
-            sleep(2500);
+        runtime.reset();
+        while (runtime.seconds() < 5) {
+            turtlerobot.leftbackmotor.setPower(0.05);
+            turtlerobot.leftfrontmotor.setPower(0.05);
+            turtlerobot.rightbackmotor.setPower(0.05);
+            turtlerobot.rightfrontmotor.setPower(0.05);
+            sleep(250);
             turtlerobot.leftbackmotor.setPower(0);
+            turtlerobot.leftfrontmotor.setPower(0);
+            turtlerobot.rightfrontmotor.setPower(0);
+            turtlerobot.rightfrontmotor.setPower(0);
+            if (cam == 0) {
+                turtlerobot.rightbackmotor.setPower(1);
+                sleep(5000);
+                turtlerobot.rightbackmotor.setPower(0);
+            } else if (cam == 1) {
+                turtlerobot.leftfrontmotor.setPower(0.5);
+                sleep(1000);
+                turtlerobot.leftfrontmotor.setPower(0);
+            } else {
+                turtlerobot.leftbackmotor.setPower(0.1);
+                sleep(2500);
+                turtlerobot.leftbackmotor.setPower(0);
+            }
+            turtlerobot.leftbackmotor.setPower(-0.05);
+            turtlerobot.leftfrontmotor.setPower(-0.05);
+            turtlerobot.rightbackmotor.setPower(-0.05);
+            turtlerobot.rightfrontmotor.setPower(-0.05);
+            sleep(250);
+            turtlerobot.leftbackmotor.setPower(0);
+            turtlerobot.leftfrontmotor.setPower(0);
+            turtlerobot.rightfrontmotor.setPower(0);
+            turtlerobot.rightfrontmotor.setPower(0);
         }
         // Field is 144 by 144 inches
         // Each square floor tile is 24 by 24 inches
