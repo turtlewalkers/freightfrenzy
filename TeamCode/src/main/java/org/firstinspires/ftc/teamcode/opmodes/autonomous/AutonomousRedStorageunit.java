@@ -46,7 +46,7 @@ public class AutonomousRedStorageunit extends LinearOpMode {
         List<Recognition> recognitions;
         int index;
         int pos;
-        int duckPos = 3;
+        int duckPos = 0;
 
         initCam();
         turtlerobot.init(hardwareMap);
@@ -70,7 +70,6 @@ public class AutonomousRedStorageunit extends LinearOpMode {
         waitForStart();
         ElapsedTime     duckruntime = new ElapsedTime();
         duckruntime.reset();
-
         EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 2.5, 2.5, 2.5, 2.5, 1);
         // Get the duck position
         while (duckruntime.seconds() < 3) {
@@ -86,29 +85,31 @@ public class AutonomousRedStorageunit extends LinearOpMode {
 
         // Field is 144 by 144 inches
         // Each square floor tile is 2 4 by 24 inches
-        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 10, 10, 10, 10, 3);
+        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 10, 10, 10, 10, 3); //this needs to be adjusted in the competition
         EncoderDrive(turtlerobot, turtlerobot.TURN_SPEED, 4, 4, -4, -4, 3); //right
-        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 13, 13, 13, 13, 5);  // S1: Forward 47 Inches with 5 Sec timeout
+        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, 12.5, 12.5, 12.5, 12.5, 5);  // S1: Forward 47 Inches with 5 Sec timeout
         //EncoderDrive(turtlerobot, turtlerobot.TURN_SPEED, -12.5, -12.5 , 12.5, 12.5, 3); //left
-        arm(turtlerobot, turtlerobot.DRIVE_SPEED, (duckPos*11), 3);
-        collectdrop(turtlerobot, true);
-        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, -16, -16 ,-16, -16, 3);
-        arm(turtlerobot, turtlerobot.FAST_SPEED, (duckPos*-2), 1);
-        arm(turtlerobot, turtlerobot.FAST_SPEED, 53, 6);
+        arm(turtlerobot, turtlerobot.DRIVE_SPEED, -(duckPos*10), 3);
+       // if (duckPos == 3) { 
+        //    EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 2, 2, 2, 2, 1);
+        //} 
+        collectdrop(turtlerobot, false, true);
+        //arm(turtlerobot, turtlerobot.DRIVE_SPEED, -5, 3);
+        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, -17, -17,-17, -17, 3);
         //EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, -12.5, -12.5 ,-12.5, -12.5, 3);
-        EncoderDrive(turtlerobot, turtlerobot.TURN_SPEED, -14.5, -14.5, 14.5, 14.5, 3); //left
-        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 19, 19 ,19 , 19, 5);
+        EncoderDrive(turtlerobot, 0.25, -14, -14, 14, 14, 3); //left
+        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 17, 17, 17, 17, 5);
         while(counter != 6) {
             startCarousel(turtlerobot, true);
             sleep(500);
-            EncoderDrive(turtlerobot, turtlerobot.SLOW_SPEED, 0.2/counter, 0.2/counter, 0.2/counter, 0.2/counter, 1);
+            EncoderDrive(turtlerobot, turtlerobot.SLOW_SPEED, 0.2/counter, 0.2/counter, 0.3/counter, 0.3/counter, 1);
             counter += 1;
-        }
+        } // yes sir yes sir three bags full all for ashay none for you
         stopCarousel(turtlerobot);
 
-        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, -11, -11, -11, -11, 3);
-        EncoderDrive(turtlerobot, turtlerobot.TURN_SPEED, 12.5, 12.5 , -12.5, -12.5, 3); //right
-        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 17, 17,17, 17, 3);
+        EncoderDrive(turtlerobot,turtlerobot.DRIVE_SPEED, -7, -7, -7, -7, 3);
+        EncoderDrive(turtlerobot, turtlerobot.TURN_SPEED, 10, 10, -10, -10, 3); //right
+        EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 15, 15, 15, 15, 3);
         //EncoderDrive(turtlerobot, turtlerobot.TURN_SPEED, -10, -10 , 10, 10, 3); //left
         //EncoderDrive(turtlerobot, turtlerobot.DRIVE_SPEED, 16, 16, 16, 16, 4);
     }
@@ -253,34 +254,52 @@ public class AutonomousRedStorageunit extends LinearOpMode {
         turtlerobot.leftbackmotor.setPower(0);
         sleep(1000);
     }
+    
     public void startCarousel(TurtleRobot turtlerobot, boolean direction) {
         if (direction == true) {
-            turtlerobot.Carouselmotor1.setPower(-0.25);
+            turtlerobot.Carouselmotor1.setPower(-0.35);
+            turtlerobot.Carouselmotor2.setPower(-0.35);
         } else if (direction == false) {
-            turtlerobot.Carouselmotor1.setPower(0.25);
+            turtlerobot.Carouselmotor1.setPower(0.35);
+            turtlerobot.Carouselmotor2.setPower(0.35);
         }
     }
 
     public void stopCarousel(TurtleRobot turtlerobot) {
         turtlerobot.Carouselmotor1.setPower(0);
+        turtlerobot.Carouselmotor2.setPower(0);
     }
 
-    public void collectdrop(TurtleRobot turtlerobot, boolean cargo) {
+    public void collectdrop(TurtleRobot turtlerobot, boolean cargo, boolean holdpos) {
         if (cargo == true) {
-            turtlerobot.armservo.setPower(-1);
-            sleep(1000);
-            turtlerobot.armservo.setPower(0);
+            if (holdpos == true) {
+                turtlerobot.armservo.setPower(-1);
+                turtlerobot.ArmMotor.setPower(-0.05);
+                sleep(1000);
+                turtlerobot.armservo.setPower(0);
+                turtlerobot.ArmMotor.setPower(0);
+            }
+            if (holdpos == false) {
+                turtlerobot.armservo.setPower(-1);
+                sleep(1000);
+                turtlerobot.armservo.setPower(0);
+            }
         } else if (cargo == false) {
-            turtlerobot.armservo.setPower(1);
-            sleep(1000);
-            turtlerobot.armservo.setPower(0);
+            if (holdpos == true) {
+                turtlerobot.armservo.setPower(1);
+                turtlerobot.ArmMotor.setPower(-0.05);
+                sleep(1000);
+                turtlerobot.armservo.setPower(0);
+                turtlerobot.ArmMotor.setPower(0);
+            }
+            if (holdpos == false) {
+                turtlerobot.armservo.setPower(-1);
+                sleep(1000);
+                turtlerobot.armservo.setPower(0);
+            }
         }
     }
 
-    /**
-     * Function that becomes true when gyro is calibrated and
-     * reports calibration status to Driver Station in the meantime.
-     */
     private boolean IMU_Calibrated() {
         telemetry.addData("IMU Calibration Status", turtlerobot.imu.getCalibrationStatus());
         telemetry.addData("Gyro Calibrated", turtlerobot.imu.isGyroCalibrated() ? "True" : "False");
@@ -307,6 +326,8 @@ public class AutonomousRedStorageunit extends LinearOpMode {
                 // Display info.
                 displayInfo(index);
                 if (recognition.getLabel().equals("Duck")) {
+                    displayInfo(index);
+                    sleep(1000);
                     if (recognition.getLeft() < 150) {
                         telemetry.addData("Duck", "Middle");
                         pos = 2;
@@ -316,7 +337,7 @@ public class AutonomousRedStorageunit extends LinearOpMode {
                     }
                 } else {
                     telemetry.addData("Duck", "Left");
-                    pos=2;
+                    pos=1;
                 }
                 // Increment index.
                 index = index + 1;
@@ -357,6 +378,7 @@ public class AutonomousRedStorageunit extends LinearOpMode {
         telemetry.addData(">", "Press Play to start");
         telemetry.update();
     }
+    
     public void arm(TurtleRobot turtlerobot, double speed,
                     double arminches,
                     double timeoutS) {
@@ -419,4 +441,3 @@ public class AutonomousRedStorageunit extends LinearOpMode {
     }
 
 }
-
