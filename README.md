@@ -1,7 +1,7 @@
 ## Welcome TurtleWalkers!
 
 
-We are a new team with 7 current members. Many of us have experience in FLL but none of have ever done FTC or any competitions similar to FTC before.
+We are a team with 1 year of experience with 6 people. This year we are trying to use roadrunner and odometry.
 
 
 
