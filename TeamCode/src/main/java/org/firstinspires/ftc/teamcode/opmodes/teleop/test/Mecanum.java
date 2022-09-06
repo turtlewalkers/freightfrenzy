@@ -33,10 +33,10 @@ public class Mecanum extends LinearOpMode {
         if (opModeIsActive()) {
             while (opModeIsActive()) {
             
-            frontRightDrive = (-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x)*driveSpeed;
-            frontLeftDrive  = (-gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x)*driveSpeed;
-            backRightDrive  = (-gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x)*driveSpeed;
-            backLeftDrive   = (-gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x)*driveSpeed;
+            frontRightDrive = (-gamepad1.left_stick_y - gamepad1.right_stick_x - gamepad1.left_stick_x)*driveSpeed;
+            frontLeftDrive  = (-gamepad1.left_stick_y + gamepad1.right_stick_x + gamepad1.left_stick_x)*driveSpeed;
+            backRightDrive  = (-gamepad1.left_stick_y - gamepad1.right_stick_x + gamepad1.left_stick_x)*driveSpeed;
+            backLeftDrive   = (-gamepad1.left_stick_y + gamepad1.right_stick_x - gamepad1.left_stick_x)*driveSpeed;
 
             rightfrontmotor.setPower(frontRightDrive);
             rightbackmotor.setPower(backRightDrive);
